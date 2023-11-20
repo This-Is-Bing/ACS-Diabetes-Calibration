@@ -18,7 +18,7 @@ source('./StructuringFunction.R')
 # Type. : Diabetes
 # Split : Training
 # Others: No NA, ROSE Balanced
-ds <- read_xlsx("./dataset/dm_trainData_noNA_BALANCED_ROSEMethod_new.xlsx")
+ds <- read_xlsx("./dataset/dm_testData_noNA_new.xlsx")
 
 
 ##### Dataset Preprocessing ####
@@ -40,9 +40,9 @@ ds$ptoutcome <- ifelse(ds$ptoutcome == "Alive", 0, ifelse(ds$ptoutcome == "Death
 #### Dataset Splitting ####
 # Description: Splitting the dataset into training, calibration and validation dataset (STEMI + NSTEMI)
 #Split training to 80%
-training_partition <- createDataPartition(ds$ptoutcome, p = 0.8, list = FALSE)
-training_ds <- ds[training_partition,]
-remaining_ds <- ds[-training_partition,]
+testing_partition <- createDataPartition(ds$ptoutcome, p = 0.4, list = FALSE)
+testing_ds <- ds[testing_partition,]
+remaining_ds <- ds[-testing_partition,]
 
 #Split calibration and validation 10% each
 calib_valid_partition <-createDataPartition(remaining_ds$ptoutcome, p = 0.5, list = FALSE)
@@ -50,7 +50,7 @@ calibration_ds <- remaining_ds[calib_valid_partition,]
 validation_ds <- remaining_ds[-calib_valid_partition,]
 
 #### Saving processed files ####
-write.csv(training_ds, './dataset/processed/training_ds.csv')
+write.csv(testing_ds, './dataset/processed/testing_ds.csv')
 write.csv(calibration_ds, './dataset/processed/calibration_ds.csv')
 write.csv(validation_ds, './dataset/processed/validation_ds.csv')
 
