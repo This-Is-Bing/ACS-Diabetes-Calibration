@@ -71,6 +71,54 @@ pred_prob_calib$ptoutcome <- as.numeric(pred_prob_calib$ptoutcome-1)
 pred_prob_valid$ptoutcome <- as.numeric(validation_ds$ptoutcome)
 pred_prob_valid$ptoutcome <- as.numeric(pred_prob_valid$ptoutcome-1)
 
+#### BEFORE ####
+#### Model Evaluation Before ####
+# AUC
+roc <- roc(pred_prob_valid$ptoutcome, pred_prob_valid$`predict(model, X_test_valid, type = "prob")$Death`)
+auc <- roc$auc
+
+# PR
+pr <- pr.curve(pred_prob_valid$ptoutcome == 0 , pred_prob_valid$ptoutcome == 1, curve = T)
+
+# CM
+pred_class <-as.data.frame(predict(model, X_test_valid))
+pred_class$ptoutcome <- validation_ds$ptoutcome
+pred_class$ptoutcome<- ifelse(pred_class$ptoutcome == 0, 'Alive', ifelse(pred_class$ptoutcome == 1, 'Death', NA))
+cm <- confusionMatrix(data = as.factor(pred_class$`predict(model, X_test_valid)`), 
+                      reference =  as.factor(pred_class$ptoutcome),
+                      positive = 'Death')
+
+# Define a small epsilon value
+epsilon <- 1e-15
+
+# Adjust probabilities to avoid log(0)
+adjusted_pred_risk <- pmax(pmin(pred_prob_valid$`predict(model, X_test_valid, type = "prob")$Death`, 1 - epsilon), epsilon)
+
+# Calculate the Brier score manually
+brier_score <- mean((pred_prob_valid$ptoutcome - adjusted_pred_risk)^2)
+cat('Brier score:', brier_score, "\n")
+
+# Calculate the logLoss manually
+logloss <- -mean(pred_prob_valid$ptoutcome * log(adjusted_pred_risk) + (1 - pred_prob_valid$ptoutcome) * log(1 - adjusted_pred_risk))
+cat('Log Loss:',logloss,"\n")
+
+#### Hosmer Lemeshow Test ####
+pred_risk <- pred_prob_valid$`predict(model, X_test_valid, type = "prob")$Death`
+ptoutcome <- pred_prob_valid$ptoutcome
+
+hlscore <- hoslem.test(pred_prob_valid$ptoutcome,pred_risk, g=10)
+
+
+  
+#### Compile ####
+
+raw_result <- data.frame(auc = auc,acc = 8.157100e-01, sens = 0.89743590, spec = 0.81059390, ppv = 0.22875817,
+                 npv = 0.99214145, mcnemar =  1.447112e-24, chisquare = hlscore$statistic,
+                 pvalue = hlscore$p.value, brier = brier_score, logloss =logloss, row.names = 'raw_result')
+
+
+#### BEFORE ####
+
 
 #### Platt Scaling ####
 res <- prCalibrate(pred_prob_calib$ptoutcome, 
@@ -95,13 +143,54 @@ cal_acc
 raw_auc$auc
 cal_auc$auc
 
-#### Hosmer Lemeshow Test ####
+#### AFTER ####
 pred_risk <- res$cal.probs
 ptoutcome <- res$responses
 
-hoslem.test(pred_prob_valid$ptoutcome,pred_risk, g=10)
+# AUC
+roc <- roc(ptoutcome, pred_risk)
+auc <- roc$auc
 
-#	Hosmer and Lemeshow goodness of fit (GOF) test
+# PR
+pr <- pr.curve(ptoutcome == 0 , ptoutcome == 1, curve = T)
 
-# data:  pred_prob_valid$ptoutcome, pred_risk
-# X-squared = 10.349, df = 8, p-value = 0.2414
+# CM
+
+pred_class <-as.data.frame(res$cal.probs)
+pred_class$`res$cal.probs` <-  ifelse(pred_class$`res$cal.probs` >= 0.5, 'Death', 'Alive')
+pred_class$ptoutcome <- validation_ds$ptoutcome
+pred_class$ptoutcome<- ifelse(pred_class$ptoutcome == 0, 'Alive', ifelse(pred_class$ptoutcome == 1, 'Death', NA))
+cm <- confusionMatrix(data = as.factor(pred_class$`res$cal.probs`), 
+                      reference =  as.factor(pred_class$ptoutcome),
+                      positive = 'Death')
+
+# Define a small epsilon value
+epsilon <- 1e-15
+
+# Adjust probabilities to avoid log(0)
+adjusted_pred_risk <- pmax(pmin(pred_risk, 1 - epsilon), epsilon)
+
+# Calculate the Brier score manually
+brier_score <- mean((ptoutcome - adjusted_pred_risk)^2)
+cat('Brier score:', brier_score, "\n")
+
+# Calculate the logLoss manually
+logloss <- -mean(ptoutcome * log(adjusted_pred_risk) + (1 - ptoutcome) * log(1 - adjusted_pred_risk))
+cat('Log Loss:',logloss,"\n")
+
+#### Hosmer Lemeshow Test ####
+hlscore <- hoslem.test(ptoutcome,pred_risk, g=10)
+
+#### Compile ####
+
+calibrated_result <- data.frame(auc = auc,acc = 9.516616e-01, sens = 0.25641026 , spec = 0.99518459, ppv = 0.76923077,
+                     npv = 0.95531587, mcnemar =  9.896735e-06, chisquare = hlscore$statistic,
+                     pvalue = hlscore$p.value, brier = brier_score, logloss =logloss, row.names = 'calibrated_result')
+
+#### AFTER ####
+
+#### Compile all result ####
+all_result <- rbind(raw_result,calibrated_result)
+
+# Export Result
+write.csv(all_result, './results/ACS_result.csv')

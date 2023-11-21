@@ -1,7 +1,7 @@
-# Structuring Function
+# All Functions used for this Project
+
+#### Structuring Function ####
 # This function is to structure ACS dataset into categorical and continuous dataset
-
-
 StructuringFunction <- function(dataset, cat_nb_features_names, cat_features_names, cont_features_names) {
   # Change the types of variables in dataset
   #categorical non binary
@@ -21,6 +21,7 @@ StructuringFunction <- function(dataset, cat_nb_features_names, cat_features_nam
   return(dataset)
 }
 
+#### STEMI Structuring Function ####
 StemiStructuringFunction <- function(dataset, cat_nb_features_names, cat_features_names, cont_features_names) {
   # Change the types of variables in dataset
   #categorical non binary
@@ -40,6 +41,7 @@ StemiStructuringFunction <- function(dataset, cat_nb_features_names, cat_feature
   return(dataset)
 }
 
+#### NSTEMI Structuring Function ####
 NStemiStructuringFunction <- function(dataset, cat_nb_features_names, cat_features_names, cont_features_names) {
   # Change the types of variables in dataset
   #categorical non binary
