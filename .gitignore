@@ -2,7 +2,7 @@
 .Rhistory
 .RData
 .Ruserdata
-
 /dataset
 /models
 /results
+.Rapp.history
