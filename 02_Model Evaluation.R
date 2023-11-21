@@ -32,6 +32,11 @@ cat_nb_features_names <- all_features$VarNames[which(all_features$Cat_Cont_Ord =
 cat_features_names<- all_features$VarNames[which(all_features$Cat_Cont_Ord == "categorical_binary")] 
 cont_features_names <- all_features$VarNames[which(all_features$Cat_Cont_Ord %in% c("continuous", "ordinal"))]
 
+# get selected features in DS
+testing_ds <- testing_ds[,c(all_features_names,"ptoutcome")]
+calibration_ds <- calibration_ds[,c(all_features_names,"ptoutcome")]
+validation_ds <- validation_ds[,c(all_features_names,"ptoutcome")]
+
 # Change the types of each variables
 testing_ds <- StructuringFunction(dataset = testing_ds, cat_nb_features_names, cat_features_names, cont_features_names)
 calibration_ds <- StructuringFunction(dataset = calibration_ds, cat_nb_features_names, cat_features_names, cont_features_names)
