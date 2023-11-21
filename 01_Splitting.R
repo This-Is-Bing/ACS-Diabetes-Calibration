@@ -10,16 +10,14 @@ rm(list=ls())
 set.seed(2468)
 library(readxl)
 library(caret)
-source('./StructuringFunction.R')
 
 
 ##### Loading Training Dataset ####
 # Source: Chien Wen
 # Type. : Diabetes
-# Split : Training
-# Others: No NA, ROSE Balanced
-ds <- read_xlsx("./dataset/dm_testData_noNA_new.xlsx")
+# Split : Testing
 
+ds <- read_xlsx("./dataset/dm_testData_noNA_new.xlsx")
 
 ##### Dataset Preprocessing ####
 # Description: Only taking the RF features and Model with 20 selected features
@@ -28,12 +26,9 @@ all_features <- all_features[which(all_features$rf20_fet %in% c("other", "yes"))
 
 # Get selected features names and types
 all_features_names <- all_features$VarNames[which(all_features$rf20_fet %in% c("yes"))]
-cat_nb_features_names <- all_features$VarNames[which(all_features$Cat_Cont_Ord == "categorical_nonBinary")]
-cat_features_names<- all_features$VarNames[which(all_features$Cat_Cont_Ord == "categorical_binary")] 
-cont_features_names <- all_features$VarNames[which(all_features$Cat_Cont_Ord %in% c("continuous", "ordinal"))]
 
 # Select variables on DS
-ds <- ds[,c(all_features_names,"ptoutcome")]
+ds <- ds[,c(all_features_names,'acsstratum', 'timiscorestemi',"timiscorenstemi", "ptoutcome")]
 ds$ptoutcome <- ifelse(ds$ptoutcome == "Alive", 0, ifelse(ds$ptoutcome == "Death", 1, NA))
 
 
