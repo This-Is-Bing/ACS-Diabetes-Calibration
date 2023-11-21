@@ -15,7 +15,7 @@ rm(list=ls())
 
 ##### Loading Library ####
 set.seed(2468)
-source('./StructuringFunction.R')
+source('./Functions.R')
 library(readxl)
 library(caret)
 library(eRic)
