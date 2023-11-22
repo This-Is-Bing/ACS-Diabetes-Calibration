@@ -18,8 +18,7 @@ library(PRROC)
 
 
 #### Loading and Change Types of All Datasets ####
-# Include [-1] to remove "X" column of row number
-testing_ds <- read.csv('./dataset/processed/testing_ds.csv', header = TRUE)[-1]
+testing_ds <- read.csv('./dataset/processed/testing_ds.csv', header = TRUE)
 
 # Select features
 all_features <- read_xlsx('./dataset/NCVD_features_dm.xlsx')
