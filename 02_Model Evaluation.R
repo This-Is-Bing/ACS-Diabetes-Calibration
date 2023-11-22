@@ -1,5 +1,6 @@
 #### File Description ####
 # Please run the rproj file in the folder
+# Dataset: Testing
 # This script is to run and evaluate the model
 
 
@@ -19,8 +20,6 @@ library(PRROC)
 #### Loading and Change Types of All Datasets ####
 # Include [-1] to remove "X" column of row number
 testing_ds <- read.csv('./dataset/processed/testing_ds.csv', header = TRUE)[-1]
-calibration_ds <- read.csv('./dataset/processed/calibration_ds.csv', header = TRUE)[-1]
-validation_ds <- read.csv('./dataset/processed/validation_ds.csv', header = TRUE)[-1]
 
 # Select features
 all_features <- read_xlsx('./dataset/NCVD_features_dm.xlsx')
@@ -34,13 +33,9 @@ cont_features_names <- all_features$VarNames[which(all_features$Cat_Cont_Ord %in
 
 # get selected features in DS
 testing_ds <- testing_ds[,c(all_features_names,"ptoutcome")]
-calibration_ds <- calibration_ds[,c(all_features_names,"ptoutcome")]
-validation_ds <- validation_ds[,c(all_features_names,"ptoutcome")]
 
 # Change the types of each variables
 testing_ds <- StructuringFunction(dataset = testing_ds, cat_nb_features_names, cat_features_names, cont_features_names)
-calibration_ds <- StructuringFunction(dataset = calibration_ds, cat_nb_features_names, cat_features_names, cont_features_names)
-validation_ds <- StructuringFunction(dataset = validation_ds, cat_nb_features_names, cat_features_names, cont_features_names)
 
 X_test <- testing_ds[, -which(names(testing_ds) == 'ptoutcome')]
 
