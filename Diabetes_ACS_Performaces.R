@@ -1,14 +1,14 @@
-  #### File Description ####
+#### File Description ####
   # Please run the rproj file in the folder
   # Dataset: Diabetes ACS (STEMI + NSTEMI) (Without TIMI Score)
   # This script is to compare the raw performance and calibrated performance
   
-  #### Download eRic packages ####
+#### Download eRic packages ####
   # UNCOMMENT TO INSTALL FOR THE FIRST TIME
   # install.packages("devtools")
   # library("devtools")
   # install_github("etlundquist/eRic")
-  
+
   
   ##### Cleaning environment ####
   rm(list=ls())
@@ -23,7 +23,7 @@
   library(rms)
   library(pROC)
   
-  #### Loading and Transformation ####
+#### Loading and Transformation ####
   calibration_ds <- read.csv('./dataset/processed/calibration_ds.csv', header = TRUE,)
   validation_ds <- read.csv('./dataset/processed/validation_ds.csv', header = TRUE)
   
@@ -83,13 +83,10 @@
   calibrated_prob <- res$cal.probs
 
   #### Performance After Calibrating ####
-  calibrated_acs_result <- Evaluation(y_validation_ds, pred_prob_valid, rowname = 'ACS_Calibrated')
+  calibrated_acs_result <- Evaluation(y_validation_ds, calibrated_prob, rowname = 'ACS_Calibrated')
   #### Performance After Calibrating ##
   
   #### Exporting Result ####
   final_result <- rbind(raw_acs_result,calibrated_acs_result)
-  write.csv(final_result, "./results/ACS_Calibration_Performance.csv", row.names = FALSE)
+  #write.csv(final_result, "./results/ACS_Calibration_Performance.csv", row.names = FALSE)
   
-  
-  aaaa <- read.csv('./results/ACS_Calibration_Performance.csv')
-aaaa  
