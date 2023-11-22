@@ -173,4 +173,4 @@ calibrated_STEMI_TIMI_result <- Evaluation(y_validation_ds, calibrated_prob, row
 
 #### Exporting Result ####
 final_result <- rbind(raw_STEMI_Atcual_result,calibrated_STEMI_Atcual_result, raw_STEMI_TIMI_result ,calibrated_STEMI_TIMI_result)
-#write.csv(final_result, "./results/STEMI_Calibration_Performance.csv", row.names = FALSE)
+# write.csv(final_result, "./results/STEMI_Calibration_Performance.csv")
