@@ -248,7 +248,7 @@ SearchBestThreshold <- function(label, predicted) {
       recall <- cm[['byClass']]['Sensitivity']
       f1 <- 2 * (precision * recall) / (precision + recall)
     
-      if (f1 > best_f1) {
+      if (!is.na(f1) && f1 > best_f1) {
         best_f1 <- f1
         best_threshold <- threshold
         best_cm <- cm

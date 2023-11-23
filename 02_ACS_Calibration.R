@@ -120,7 +120,7 @@ acs_calibrated_result <- Evaluation(y_validation_ds, calibrated_prob, calib_thre
 #----------------------------------------------------------------------------# 
 ##### Exporting Result ####
 final_result <- rbind(acs_raw_result,acs_calibrated_result)
-#write.csv(final_result, "./results/ACS_Calibration_Performance_F1.csv")
+# write.csv(final_result, "./results/ACS_Calibration_Valid_F1.csv")
 
 ##### Exporting Model ####
 acs_calibrated_model <- res$cal.model
