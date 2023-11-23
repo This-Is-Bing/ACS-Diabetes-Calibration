@@ -88,5 +88,7 @@
   
   #### Exporting Result ####
   final_result <- rbind(raw_acs_result,calibrated_acs_result)
+  acs_calibrated_model <- res$cal.model
+  # saveRDS(calibrated_model, file = "./results/calibrated_models/acs_calibrated_model.rds")
   # write.csv(final_result, "./results/ACS_Calibration_Performance.csv")
   
