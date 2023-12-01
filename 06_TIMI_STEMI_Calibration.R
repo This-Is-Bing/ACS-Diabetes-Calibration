@@ -2,8 +2,8 @@
 ####                        File Description & Setup                      ####
 #----------------------------------------------------------------------------#
 # Please run the rproj file in the folder                                     
-# Dataset: Diabetes ACS (STEMI)                                     
-# Description: To calibrate model for STEMI
+# Dataset: Diabetes ACS (TIMI STEMI)                                     
+# Description: To calibrate model for TIMI STEMI
 
 ##### Download eRic packages ####
 # UNCOMMENT TO INSTALL FOR THE FIRST TIME
@@ -39,14 +39,25 @@ validation_ds <- validation_ds[validation_ds$acsstratum ==1, ]
 ##### Get all Features ####
 all_features <- read_xlsx('./dataset/NCVD_features_dm.xlsx')
 
+##### Removing Uneccessary Columns ####
+cols_to_remove <- c('acsstratum', 'ptoutcome', 'timiscorenstemi')
+calibration_ds <- calibration_ds[, -which(names(calibration_ds) %in% cols_to_remove)]
+validation_ds <- validation_ds[, -which(names(validation_ds) %in% cols_to_remove)]
+
+##### Classifying outcome with timiscore ####
+calibration_ds$timiscorestemi <- ifelse(calibration_ds$timiscorestemi >=5, 1, 0)
+validation_ds$timiscorestemi <- ifelse(validation_ds$timiscorestemi >=5, 1, 0)
+
+##### Changing the outcome column name to make the code reusable ####
+calibration_ds$ptoutcome <- calibration_ds$timiscorestemi
+calibration_ds$timiscorestemi<- NULL
+
+validation_ds$ptoutcome <- validation_ds$timiscorestemi
+validation_ds$timiscorestemi<- NULL
+
 ##### Structuring each feature ####
 calibration_ds <- RF20_TransformationFunction(calibration_ds, all_features)
 validation_ds <- RF20_TransformationFunction(validation_ds, all_features)
-
-##### Removing Unecessary Columns ####
-cols_to_remove <- c('acsstratum', 'timiscorestemi', 'timiscorenstemi')
-calibration_ds <- calibration_ds[, -which(names(calibration_ds) %in% cols_to_remove)]
-validation_ds <- validation_ds[, -which(names(validation_ds) %in% cols_to_remove)]
 
 ##### Separating features and label ####
 X_calibration_ds <- calibration_ds[,-which(names(calibration_ds) == 'ptoutcome')]
@@ -54,6 +65,7 @@ X_validation_ds <- validation_ds[,-which(names(validation_ds) == 'ptoutcome')]
 
 y_calibration_ds <- calibration_ds[,which(names(calibration_ds) == 'ptoutcome')]
 y_validation_ds <- validation_ds[,which(names(validation_ds) == 'ptoutcome')]
+
 
 # ---------------------------------------------------------------------------#
 ####                      Predicting Probailities                         ####
@@ -66,13 +78,14 @@ model <- readRDS('./models/3_modelAll_rf20_dm.rds')$RF
 pred_prob_calib <- predict(model, X_calibration_ds, type= 'prob')$Death
 pred_prob_valid <- predict(model, X_validation_ds, type= 'prob')$Death
 
+
 # ---------------------------------------------------------------------------#
 ####                 Performance Evaluation Before                        ####
 #----------------------------------------------------------------------------#
 
 ##### Evaluate Performance ####
 raw_threshold <- SearchBestThreshold(y_validation_ds,pred_prob_valid)
-stemi_atcual_raw_result <- Evaluation(y_validation_ds, pred_prob_valid, raw_threshold,rowname = 'STEMI_Atcual_Raw')
+timi_stemi_atcual_raw_result <- Evaluation(y_validation_ds, pred_prob_valid, raw_threshold,rowname = 'TIMI_STEMI_Atcual_Raw')
 
 
 # ---------------------------------------------------------------------------#
@@ -104,18 +117,18 @@ calibrated_prob <- res$cal.probs
 
 ##### Performance After Calibrating ####
 calibrated_threshold <- SearchBestThreshold(y_validation_ds, calibrated_prob)
-stemi_atcual_calibrated_result <- Evaluation(y_validation_ds, calibrated_prob, calibrated_threshold,rowname = 'STEMI_Atcual_Calibrated')
+timi_stemi_atcual_calibrated_result <- Evaluation(y_validation_ds, calibrated_prob, calibrated_threshold,rowname = 'TIMI_STEMI_Atcual_Calibrated')
 
 # ---------------------------------------------------------------------------#
 ####                          Exporting Result                            ####
 #----------------------------------------------------------------------------# 
 ##### Exporting Result ####
-final_result <- rbind(stemi_atcual_raw_result,stemi_atcual_calibrated_result)
-# write.csv(final_result, "./results/Stemi_Calibration_Valid_F1.csv")
+final_result <- rbind(timi_stemi_atcual_raw_result,timi_stemi_atcual_calibrated_result)
+# write.csv(final_result, "./results/Timi_Stemi_Calibration_Valid_F1.csv")
 
 ##### Exporting Model ####
 acs_calibrated_model <- res$cal.model
-# saveRDS(acs_calibrated_model, file = "./results/calibrated_models/stemi_calibrated_model.rds")
+# saveRDS(acs_calibrated_model, file = "./results/calibrated_models/timi_stemi_calibrated_model.rds")
 
 
 
