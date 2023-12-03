@@ -16,7 +16,7 @@ rm(list=ls())
 
 ##### Loading Library ####
 set.seed(2468)
-source('./Functions.R')
+source('./00_Functions.R')
 library(readxl)
 library(caret)
 library(eRic)
@@ -126,4 +126,33 @@ final_result <- rbind(acs_raw_result,acs_calibrated_result)
 acs_calibrated_model <- res$cal.model
 #saveRDS(calibrated_model, file = "./results/calibrated_models/acs_calibrated_model.rds")
 
-  
+
+
+#iso
+
+calibratedProbs1<-rfUtilities::probability.calibration(y_calibration_ds, pred_prob_calib, regularization = T)
+
+calibratedProbs2<-CORElearn::calibrate(y_calibration_ds, pred_prob_calib, class1=1, 
+          method = c("isoReg"), noBins=10, assumeProbabilities=T)
+applyCalibration(y_calibration_ds, calibratedProbs2)
+
+threshold <-SearchBestThreshold(y_calibration_ds, pred_prob_calib)  
+a<-Evaluation(y_calibration_ds, calibratedProbs1,rowname = 'raw', threshold = threshold)
+threshold <-SearchBestThreshold(y_calibration_ds, calibratedProbs1)  
+b<-Evaluation(y_calibration_ds, calibratedProbs1,rowname = 'iso', threshold = threshold)
+
+a
+b
+
+CORElearn::reliabilityPlot(pred_prob_calib, calibratedProbs2, titleText="", boxing="equipotent", 
+                noBins=10, classValue = 1, printWeight=FALSE)
+
+# Plot calibrated against original probability estimate
+plot(density(pred_prob_calib), col="red", xlim=c(0,1), ylim=c(0,20), ylab="Density", xlab="probabilities",
+     main="Calibrated probabilities" )
+lines(density(calibratedProbs1), col="blue")
+legend("topright", legend=c("original","calibrated"), 
+       lty = c(1,1), col=c("red","blue"))
+
+
+
