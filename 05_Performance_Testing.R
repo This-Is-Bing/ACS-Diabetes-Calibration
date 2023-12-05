@@ -126,7 +126,5 @@ final_result <- rbind(acs_raw_test_result,acs_calibrated_test_result,
                       stemi_raw_test_result, stemi_calibrated_test_result,
                       nstemi_raw_test_result, nstemi_calibrated_test_result)
 
-# write.csv(final_result, "./results/Performance_on_testing.csv")
-
 
 
