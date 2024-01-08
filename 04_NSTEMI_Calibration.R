@@ -16,7 +16,7 @@ rm(list=ls())
 
 ##### Loading Library ####
 set.seed(2468)
-source('./Functions.R')
+source('./00_Functions.R')
 library(readxl)
 library(caret)
 library(eRic)
@@ -30,30 +30,30 @@ library(pROC)
 
 ##### Loading Datset ####
 calibration_ds <- read.csv('./dataset/processed/calibration_ds.csv', header = TRUE)
-validation_ds <- read.csv('./dataset/processed/validation_ds.csv', header = TRUE)
+# validation_ds <- read.csv('./dataset/processed/validation_ds.csv', header = TRUE)
 
 ##### Get STEMI Only ####
 calibration_ds <- calibration_ds[!calibration_ds$acsstratum ==1, ]
-validation_ds <- validation_ds[!validation_ds$acsstratum ==1, ]
+# validation_ds <- validation_ds[!validation_ds$acsstratum ==1, ]
 
 ##### Get all Features ####
 all_features <- read_xlsx('./dataset/NCVD_features_dm.xlsx')
 
 ##### Structuring each feature ####
 calibration_ds <- RF20_TransformationFunction(calibration_ds, all_features)
-validation_ds <- RF20_TransformationFunction(validation_ds, all_features)
+# validation_ds <- RF20_TransformationFunction(validation_ds, all_features)
 
 ##### Removing Unecessary Columns ####
 cols_to_remove <- c('acsstratum', 'timiscorestemi', 'timiscorenstemi')
 calibration_ds <- calibration_ds[, -which(names(calibration_ds) %in% cols_to_remove)]
-validation_ds <- validation_ds[, -which(names(validation_ds) %in% cols_to_remove)]
+# validation_ds <- validation_ds[, -which(names(validation_ds) %in% cols_to_remove)]
 
 ##### Separating features and label ####
 X_calibration_ds <- calibration_ds[,-which(names(calibration_ds) == 'ptoutcome')]
-X_validation_ds <- validation_ds[,-which(names(validation_ds) == 'ptoutcome')]
+# X_validation_ds <- validation_ds[,-which(names(validation_ds) == 'ptoutcome')]
 
 y_calibration_ds <- calibration_ds[,which(names(calibration_ds) == 'ptoutcome')]
-y_validation_ds <- validation_ds[,which(names(validation_ds) == 'ptoutcome')]
+# y_validation_ds <- validation_ds[,which(names(validation_ds) == 'ptoutcome')]
 
 # ---------------------------------------------------------------------------#
 ####                      Predicting Probailities                         ####
@@ -64,15 +64,15 @@ model <- readRDS('./models/3_modelAll_rf20_dm.rds')$RF
 
 ##### Predicting for calibration and validation dataset ####
 pred_prob_calib <- predict(model, X_calibration_ds, type= 'prob')$Death
-pred_prob_valid <- predict(model, X_validation_ds, type= 'prob')$Death
+# pred_prob_valid <- predict(model, X_validation_ds, type= 'prob')$Death
 
 # ---------------------------------------------------------------------------#
 ####                 Performance Evaluation Before                        ####
 #----------------------------------------------------------------------------#
 
 ##### Evaluate Performance ####
-raw_threshold <- SearchBestThreshold(y_validation_ds, pred_prob_valid)
-nstemi_atcual_raw_result <- Evaluation(y_validation_ds, pred_prob_valid, raw_threshold,rowname = 'NSTEMI_Atcual_Raw')
+raw_threshold <- SearchBestThreshold(y_calibration_ds, pred_prob_calib)
+nstemi_atcual_raw_result <- Evaluation(y_calibration_ds, pred_prob_calib, 0.5,rowname = 'NSTEMI_Atcual_Raw')
 
 
 # ---------------------------------------------------------------------------#
@@ -83,8 +83,8 @@ nstemi_atcual_raw_result <- Evaluation(y_validation_ds, pred_prob_valid, raw_thr
 # -1 to make the labels to be in 0,1
 res <- prCalibrate(r.calib = as.numeric(y_calibration_ds)-1, 
                    p.calib = pred_prob_calib,
-                   r.valid = as.numeric(y_validation_ds)-1,
-                   p.valid = pred_prob_valid, 
+                   # r.valid = as.numeric(y_validation_ds)-1,
+                   # p.valid = pred_prob_valid, 
                    nbins=10)
 
 ##### Getting Metrics Scores ####
@@ -103,8 +103,8 @@ calibrated_result <- data.frame(raw_logloss,cal_logloss,raw_auc$auc,cal_auc$auc,
 calibrated_prob <- res$cal.probs
 
 ##### Performance After Calibrating ####
-calibrated_threshold <- SearchBestThreshold(y_validation_ds, calibrated_prob)
-nstemi_atcual_calibrated_result <- Evaluation(y_validation_ds, calibrated_prob, calibrated_threshold,rowname = 'NSTEMI_Atcual_Calibrated')
+calibrated_threshold <- SearchBestThreshold(y_calibration_ds, calibrated_prob)
+nstemi_atcual_calibrated_result <- Evaluation(y_calibration_ds, calibrated_prob, 0.5,rowname = 'NSTEMI_Atcual_Calibrated')
 
 # ---------------------------------------------------------------------------#
 ####                          Exporting Result                            ####
