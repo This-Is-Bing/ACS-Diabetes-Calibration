@@ -63,9 +63,9 @@ y_nstemi_testing_ds <- nstemi_testing_ds[,which(names(nstemi_testing_ds) == 'pto
 
 ##### Loading Models ####
 raw_model <- readRDS('./models/3_modelAll_rf20_dm.rds')$RF
-acs_calibrated_model <- readRDS('./results/calibrated_models/acs_calibrated_model.rds')
-stemi_calibrated_model <- readRDS('./results/calibrated_models/stemi_calibrated_model.rds')
-nstemi_calibrated_model <- readRDS('./results/calibrated_models/nstemi_calibrated_model.rds')
+acs_calibrated_model <- readRDS('./results/2/calibrated_models/acs_calibrated_model.rds')
+stemi_calibrated_model <- readRDS('./results/2/calibrated_models/stemi_calibrated_model.rds')
+nstemi_calibrated_model <- readRDS('./results/2/calibrated_models/nstemi_calibrated_model.rds')
 
 ##### Prediction ####
 
@@ -126,5 +126,5 @@ final_result <- rbind(acs_raw_test_result,acs_calibrated_test_result,
                       stemi_raw_test_result, stemi_calibrated_test_result,
                       nstemi_raw_test_result, nstemi_calibrated_test_result)
 
-
+write.csv(final_result,"./results/2/overall_performance.csv")
 

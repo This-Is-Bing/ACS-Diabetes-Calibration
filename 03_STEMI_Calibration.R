@@ -76,8 +76,6 @@ stemi_atcual_raw_result <- Evaluation(y_calibration_ds, pred_prob_calib, raw_thr
 # -1 to make the labels to be in 0,1
 res <- prCalibrate(r.calib = as.numeric(y_calibration_ds)-1, 
                    p.calib = pred_prob_calib,
-                   # r.valid = as.numeric(y_validation_ds)-1,
-                   # p.valid = pred_prob_valid, 
                    nbins=10)
 
 ##### Getting Metrics Scores ####
@@ -104,11 +102,11 @@ stemi_atcual_calibrated_result <- Evaluation(y_calibration_ds, calibrated_prob, 
 #----------------------------------------------------------------------------# 
 ##### Exporting Result ####
 final_result <- rbind(stemi_atcual_raw_result,stemi_atcual_calibrated_result)
-# write.csv(final_result, "./results/Stemi_Calibration_Valid_F1.csv")
+# write.csv(final_result, "./results/2/calibrated_results/Stemi_Calibration_Valid_F1.csv")
 
 ##### Exporting Model ####
 acs_calibrated_model <- res$cal.model
-# saveRDS(acs_calibrated_model, file = "./results/calibrated_models/stemi_calibrated_model.rds")
+# saveRDS(acs_calibrated_model, file = "./results/2/calibrated_models/stemi_calibrated_model.rds")
 
 
 

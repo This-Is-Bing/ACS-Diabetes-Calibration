@@ -41,19 +41,15 @@ all_features <- read_xlsx('./dataset/NCVD_features_dm.xlsx')
 
 ##### Structuring each feature ####
 calibration_ds <- RF20_TransformationFunction(calibration_ds, all_features)
-# validation_ds <- RF20_TransformationFunction(validation_ds, all_features)
 
 ##### Removing Unecessary Columns ####
 cols_to_remove <- c('acsstratum', 'timiscorestemi', 'timiscorenstemi')
 calibration_ds <- calibration_ds[, -which(names(calibration_ds) %in% cols_to_remove)]
-# validation_ds <- validation_ds[, -which(names(validation_ds) %in% cols_to_remove)]
 
 ##### Separating features and label ####
 X_calibration_ds <- calibration_ds[,-which(names(calibration_ds) == 'ptoutcome')]
-# X_validation_ds <- validation_ds[,-which(names(validation_ds) == 'ptoutcome')]
 
 y_calibration_ds <- calibration_ds[,which(names(calibration_ds) == 'ptoutcome')]
-# y_validation_ds <- validation_ds[,which(names(validation_ds) == 'ptoutcome')]
 
 # ---------------------------------------------------------------------------#
 ####                      Predicting Probailities                         ####
@@ -64,7 +60,6 @@ model <- readRDS('./models/3_modelAll_rf20_dm.rds')$RF
 
 ##### Predicting for calibration and validation dataset ####
 pred_prob_calib <- predict(model, X_calibration_ds, type= 'prob')$Death
-# pred_prob_valid <- predict(model, X_validation_ds, type= 'prob')$Death
 
 # ---------------------------------------------------------------------------#
 ####                 Performance Evaluation Before                        ####
@@ -83,8 +78,6 @@ nstemi_atcual_raw_result <- Evaluation(y_calibration_ds, pred_prob_calib, 0.5,ro
 # -1 to make the labels to be in 0,1
 res <- prCalibrate(r.calib = as.numeric(y_calibration_ds)-1, 
                    p.calib = pred_prob_calib,
-                   # r.valid = as.numeric(y_validation_ds)-1,
-                   # p.valid = pred_prob_valid, 
                    nbins=10)
 
 ##### Getting Metrics Scores ####
@@ -111,11 +104,11 @@ nstemi_atcual_calibrated_result <- Evaluation(y_calibration_ds, calibrated_prob,
 #----------------------------------------------------------------------------# 
 ##### Exporting Result ####
 final_result <- rbind(nstemi_atcual_raw_result,nstemi_atcual_calibrated_result)
-# write.csv(final_result, "./results/nstemi_Calibration_Valid_F1.csv")
+# write.csv(final_result, "./results/2/calibrated_results/nstemi_Calibration_Valid_F1.csv")
 
 ##### Exporting Model ####
 acs_calibrated_model <- res$cal.model
-# saveRDS(acs_calibrated_model, file = "./results/calibrated_models/nstemi_calibrated_model.rds")
+# saveRDS(acs_calibrated_model, file = "./results/2/calibrated_models/nstemi_calibrated_model.rds")
 
 
 
