@@ -40,21 +40,15 @@ ds$ptoutcome <- ifelse(ds$ptoutcome == "Alive", 0, ifelse(ds$ptoutcome == "Death
 #### Dataset Splitting ####
 # Description: Splitting the dataset into training, calibration and validation dataset (STEMI + NSTEMI)
 #Split training to 80%
-testing_partition <- createDataPartition(ds$ptoutcome, p = 0.4, list = FALSE)
+testing_partition <- createDataPartition(ds$ptoutcome, p = 0.5, list = FALSE)
 testing_ds <- ds[testing_partition,]
-remaining_ds <- ds[-testing_partition,]
+validation_ds <- ds[-testing_partition,]
 
-#Split calibration and validation 10% each
-calib_valid_partition <-createDataPartition(remaining_ds$ptoutcome, p = 0.5, list = FALSE)
-calibration_ds <- remaining_ds[calib_valid_partition,]
-validation_ds <- remaining_ds[-calib_valid_partition,]
 
 #### Saving processed files ####
-# write.csv(testing_ds, './dataset/processed/testing_ds.csv', row.names = FALSE)
-# write.csv(calibration_ds, './dataset/processed/calibration_ds.csv', row.names = FALSE)
-# write.csv(validation_ds, './dataset/processed/validation_ds.csv', row.names = FALSE)
-# write.csv(training_ds, './dataset/processed/training_ds.csv', row.names = FALSE)
-
+write.csv(training_ds, './dataset/processed/training_ds.csv', row.names = FALSE)
+write.csv(testing_ds, './dataset/processed/testing_ds.csv', row.names = FALSE)
+write.csv(validation_ds, './dataset/processed/validation_ds.csv', row.names = FALSE)
 
 
 
